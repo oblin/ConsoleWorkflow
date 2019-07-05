@@ -24,6 +24,7 @@ namespace AbhCare.Workflow
                             .Output(s => s.ForeignKey, step => step.EventData)
                             .Output(s => s.DoneDateTime, _ => DateTime.Now)
                         .Then<NotifyFinishWorkflow>()
+                            // 參數必須要是 data object，不可以是其屬性（會無法呼叫）
                             .Input(s => s.WorkItem, d => d)
                             .Output(d => d.IsDone, _ => true)
                     )

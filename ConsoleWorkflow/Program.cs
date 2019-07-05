@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 using System.Threading;
+using WorkflowCore.Interface;
 
 namespace ConsoleWorkflow
 {
@@ -8,42 +10,34 @@ namespace ConsoleWorkflow
     {
         static void Main(string[] args)
         {
-            var param = ParseArgs(args);
-            if (param == null)
-                return;
+            IServiceProvider serviceProvider = ConfigureServices();
+            var host = serviceProvider.GetService<IWorkflowHost>();
+            host.RegisterWorkflow<TestWorkflow, WorkItem>();
+            host.Start();
 
-            var output = $"Console Invoked. fk = {param.ForeignKey}, org = {param.Org}";
+            var data1 = new WorkItem { Id = "A" };
+            var wfId1 = host.StartWorkflow("TestWorkflow", data1).Result;
 
-            Console.Out.WriteLine(output);
+            var data2 = new WorkItem { Id = "B" };
+            var wfId2 = host.StartWorkflow("TestWorkflow", data2).Result;
 
-            var path = $"D:\\Temp\\{param.Org}\\";
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            Console.WriteLine("press enter to trigger");
+            Console.ReadLine();
+            host.PublishEvent("Trigger", wfId2, null);
 
-            File.CreateText(path + param.ForeignKey);
+            Console.ReadLine();
+            host.Stop();
         }
 
-        private static Param ParseArgs(string[] args)
+        private static IServiceProvider ConfigureServices()
         {
-            switch(args.Length)
-            {
-                case 2:
-                    return new Param(args[0], args[1]);
-                default:
-                    throw new ArgumentException();
-            }
+            //setup dependency injection
+            IServiceCollection services = new ServiceCollection();
+            services.AddLogging();
+            services.AddWorkflow();
+
+            return services.BuildServiceProvider();
         }
     }
 
-    class Param
-    {
-        public string ForeignKey { get; set; }
-        public string Org { get; set; }
-
-        public Param(string fk, string org)
-        {
-            this.ForeignKey = fk;
-            this.Org = org;
-        }
-    }
 }
