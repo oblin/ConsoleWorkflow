@@ -26,7 +26,7 @@ namespace AbhCare.Workflow
             watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.CreationTime
                | NotifyFilters.FileName | NotifyFilters.DirectoryName;
 
-            watcher.Path = "d:\\Temp\\";
+            watcher.Path = _folder;
             watcher.Filter = "*.txt";
 
             //Subscribe to the Created event.
@@ -37,6 +37,7 @@ namespace AbhCare.Workflow
 
         private void Watcher_FileCreated(object sender, FileSystemEventArgs e)
         {
+            // 檢查產生檔案的名稱（work flow id）
             var filename = Path.GetFileNameWithoutExtension(e.FullPath);
             if (filename.Length != 36)
             {
@@ -46,7 +47,7 @@ namespace AbhCare.Workflow
 
             FileDetectHandler?.Invoke(this, new FileEventArgs
             {
-                Id = filename,
+                WorkflowId = filename,
                 EventName = _eventName,
                 EventData = "Test Event Data"
             });
@@ -55,7 +56,7 @@ namespace AbhCare.Workflow
 
     public class FileEventArgs : EventArgs
     {
-        public string Id { get; set; }
+        public string WorkflowId { get; set; }
         public string EventName { get; set; }
         public string EventData { get; set; }
     }

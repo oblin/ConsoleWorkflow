@@ -16,6 +16,11 @@ namespace AbhCare.Workflow
             _host = host;
         }
 
+        /// <summary>
+        /// 啟動 ExeWorkflow 與 檔案產生監測，請注意只能執行一次，建議在 Startup 中執行        
+        /// </summary>
+        /// <param name="folder">執行檔產生檔案的目錄</param>
+        /// <param name="eventName">呼叫的 ExeWorkflow.Waitfor 的 Event Name </param>
         public void Start(string folder, string eventName)
         {
             var fileWatcher = new FileWatcher(folder, eventName);
@@ -23,10 +28,27 @@ namespace AbhCare.Workflow
             _host.RegisterWorkflow<ExeWorkflow, ExeWorkItem>();
 
             _host.Start();
+            fileWatcher.Start();
         }
 
-        public T Add<T>(T item) where T : WorkItem, new()
+        public void Stop()
         {
+            _host.Stop();
+        }
+
+        /// <summary>
+        /// 將新的需求傳入 work flow，並啟動執行檔執行
+        /// </summary>
+        /// <param name="id">物件 ID</param>
+        /// <param name="parameters">呼叫執行檔的參數</param>
+        /// <returns></returns>
+        public ExeWorkItem Add(string id, string[] parameters)
+        {
+            var item = new ExeWorkItem
+            {
+                Id = id,
+                Params = parameters,
+            };
             item.WorkflowId = _host.StartWorkflow("ExeWorkflow", item).Result;
             return item;
         }
@@ -34,7 +56,7 @@ namespace AbhCare.Workflow
         private void FileWatcher_FileDetectHandler(object sender, EventArgs e)
         {
             var fileEvent = (FileEventArgs)e;
-            _host.PublishEvent(fileEvent.EventName, fileEvent.Id, fileEvent.EventData);
+            _host.PublishEvent(fileEvent.EventName, fileEvent.WorkflowId, fileEvent.EventData);
         }
     }
 }

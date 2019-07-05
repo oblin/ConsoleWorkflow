@@ -7,7 +7,8 @@ namespace AbhCare.Workflow
 {
     public class InvokeUdExe : StepBody
     {
-        public string ExePath { get; set; }
+        // TODO: make it @ appsettings
+        private readonly string _exePath = @"D:\Practices\Others\ConsoleWorkflow\pb_console_test\pb_console_test.exe";
         public string[] Params { get; set; }
 
         public WorkItem WorkItem { get; set; }
@@ -16,7 +17,7 @@ namespace AbhCare.Workflow
         {
             try
             {
-                InvokeExe(ExePath);
+                InvokeExe(_exePath);
             }
             catch (Exception ex)
             {

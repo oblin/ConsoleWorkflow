@@ -15,7 +15,6 @@ namespace AbhCare.Workflow
             builder
                 // 啟動執行 (Path) 加上參數 (Params)
                 .StartWith<InvokeUdExe>()
-                    .Input(s => s.ExePath, d => d.Path)
                     .Input(s => s.Params, d => d.Params)
                     .Input(s => s.WorkItem, d => d)
                 .Parallel()
