@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConsoleWorkflow": {
+      "commandName": "Project",
+      "commandLineArgs": "fkvalue ATN"
+    }
+  }
+}
