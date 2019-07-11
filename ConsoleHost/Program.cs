@@ -1,4 +1,5 @@
 ﻿using AbhCare.Workflow;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,10 +17,12 @@ namespace ConsoleHost
             IServiceProvider serviceProvider = ConfigureServices();
 
             var hostService = serviceProvider.GetService<ExeWorkflowService>();
+            var fileLocation = serviceProvider.GetService<IUdWorkflowConfig>();
             // TODO: make it @ appsettings
-            hostService.Start("d:\\Temp\\", "FileCreated");
+            hostService.Start(fileLocation.OutputFolder, fileLocation.EventName);
 
-            ExeWorkItem exeParam = hostService.Add(Guid.NewGuid().ToString(), new string[] { "fk100", "AYN" });
+            var item1 = CreateWorkItem1();
+            ExeWorkItem exeParam = hostService.Add(item1.Id, item1.Params);
             exeParam.StartHandler += ExeParam_StartHandler;
             exeParam.ErrorHandler += ExeParam_ErrorHandler;
             exeParam.FinishHandler += ExeParam_FinishHandler;
@@ -27,6 +30,14 @@ namespace ConsoleHost
             Console.ReadLine();
             Console.ReadLine();
             hostService.Stop();
+        }
+
+        private static NisExeWorkItem CreateWorkItem1()
+        {
+            // ASN;I1080000055;00000415;NEAA;修改的fee_name;20190705;;;;1;1;source_id_123;A;d:\999\中文\777;test_file_name4
+            return new NisExeWorkItem("ASN", "I1080000055", "00000415", 
+                "NEAA", "測試PriceName", "20190705", "0900", "1", "2998490d-b958-4e67-a519-7734b71bd6fb", 
+                1, "A");
         }
 
         private static void ExeParam_FinishHandler(object sender, EventArgs e)
@@ -59,10 +70,23 @@ namespace ConsoleHost
         {
             //setup dependency injection
             IServiceCollection services = new ServiceCollection();
-            services.AddLogging(builder => builder.AddDebug());
+            services.AddLogging(logger => logger.AddDebug());
             services.AddWorkflow();
             //services.AddWorkflow(x => x.UseMongoDB(@"mongodb://localhost:27017", "workflow"));
             services.AddSingleton<ExeWorkflowService>();
+
+            var configs = new ConfigurationBuilder().AddInMemoryCollection().Build();
+
+            configs["path"] = @"D:\Practices\Others\ConsoleWorkflow\pb_console_test\pb_console_test.exe";
+            configs["output"] = @"D:\Temp\";
+
+            services.AddTransient<IUdWorkflowConfig, UdWorkflowConfig>(_ => {
+                var fileService = new UdWorkflowConfig();
+                fileService.ExePath = configs["path"];
+                fileService.OutputFolder = configs["output"];
+                return fileService;
+            });
+            services.AddTransient<InvokeUdExe>();   // 將 InvokedUdExe 加入才可以進行 DI
 
             return services.BuildServiceProvider();
         }

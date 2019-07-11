@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -10,6 +11,8 @@ namespace AbhCare.Workflow
 
         public int Version => 1;
 
+        public string ExePath { get; set; }
+
         public void Build(IWorkflowBuilder<ExeWorkItem> builder)
         {
             builder
@@ -20,7 +23,7 @@ namespace AbhCare.Workflow
                 .Parallel()
                     .Do(then => then.StartWith(context => ExecutionResult.Next())
                         // DetectFileResult 確認執行後，就會觸動 FileCreated Event
-                        .WaitFor("FileCreated", (_, context) => context.Workflow.Id)
+                        .WaitFor("FileCreated", (data, context) => data.Id)
                             .Output(s => s.ForeignKey, step => step.EventData)
                             .Output(s => s.DoneDateTime, _ => DateTime.Now)
                         .Then<NotifyFinishWorkflow>()

@@ -17,7 +17,7 @@ namespace AbhCare.Workflow
         }
 
         /// <summary>
-        /// 啟動 ExeWorkflow 與 檔案產生監測，請注意只能執行一次，建議在 Startup 中執行        
+        /// 啟動 ExeWorkflow 與 檔案產生監測，請注意只能執行一次，建議在 Startup 中執行 
         /// </summary>
         /// <param name="folder">執行檔產生檔案的目錄</param>
         /// <param name="eventName">呼叫的 ExeWorkflow.Waitfor 的 Event Name </param>
@@ -25,6 +25,7 @@ namespace AbhCare.Workflow
         {
             var fileWatcher = new FileWatcher(folder, eventName);
             fileWatcher.FileDetectHandler += FileWatcher_FileDetectHandler;
+            
             _host.RegisterWorkflow<ExeWorkflow, ExeWorkItem>();
 
             _host.Start();

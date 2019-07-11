@@ -8,7 +8,7 @@ namespace AbhCare.Workflow
         public ExeWorkItem WorkItem { get; set; }
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            WorkItem.RaiseFinish("WaitEvent", WorkItem.ForeignKey);
+            WorkItem.RaiseFinish("WaitEvent", WorkItem.Id);
             return ExecutionResult.Next();
         }
     }

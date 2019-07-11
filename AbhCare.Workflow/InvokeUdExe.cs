@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Diagnostics;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -7,17 +8,24 @@ namespace AbhCare.Workflow
 {
     public class InvokeUdExe : StepBody
     {
-        // TODO: make it @ appsettings
-        private readonly string _exePath = @"D:\Practices\Others\ConsoleWorkflow\pb_console_test\pb_console_test.exe";
         public string[] Params { get; set; }
 
         public WorkItem WorkItem { get; set; }
+
+        private readonly IUdWorkflowConfig _fileService;
+
+        public InvokeUdExe(IUdWorkflowConfig fileSerivce)
+        {
+            _fileService = fileSerivce;
+            Console.WriteLine($"ExeWorkflow: {fileSerivce.ExePath}");
+        }
+
 
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             try
             {
-                InvokeExe(_exePath);
+                InvokeExe();
             }
             catch (Exception ex)
             {
@@ -30,10 +38,10 @@ namespace AbhCare.Workflow
             return ExecutionResult.Next();
         }
 
-        private void InvokeExe(string exePath)
+        private void InvokeExe()
         {
             var process = new Process();
-            process.StartInfo.FileName = exePath;
+            process.StartInfo.FileName = _fileService.ExePath;
             process.StartInfo.Arguments = string.Join(" ", Params);
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
