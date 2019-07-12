@@ -1,0 +1,23 @@
+{
+  "$type": "ConsoleUserWorkflow.Approval, ConsoleUserWorkflow",
+  "Id": "4671e1ff-a2b0-418d-bb7e-0180d4a60d2d",
+  "UserList": {
+    "$type": "System.Collections.Generic.List`1[[ConsoleUserWorkflow.User, ConsoleUserWorkflow]], System.Private.CoreLib",
+    "$values": [
+      {
+        "$type": "ConsoleUserWorkflow.User, ConsoleUserWorkflow",
+        "Id": "b9155ddc-3aaf-4836-bdff-52522bdc8a02",
+        "IsApproved": true,
+        "Comment": null
+      },
+      {
+        "$type": "ConsoleUserWorkflow.User, ConsoleUserWorkflow",
+        "Id": "f733b0ab-8213-4ba9-9568-174b52488d48",
+        "IsApproved": false,
+        "Comment": null
+      }
+    ]
+  },
+  "Pointer": 1,
+  "IsCancel": false
+}
