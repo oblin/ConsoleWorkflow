@@ -11,6 +11,7 @@ namespace AbhCare.Workflow
         public string ExePath { get; set; }
         public string OutputFolder { get; set; }
         public string EventName { get; set; }
+        public string BackupFolder { get; set; }
     }
 
     /// <summary>
@@ -30,5 +31,6 @@ namespace AbhCare.Workflow
         /// 呼叫 workflow 的 Event Name
         /// </summary>
         string EventName { get; set; }
+        string BackupFolder { get; set; }
     }
 }

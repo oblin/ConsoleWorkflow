@@ -9,7 +9,7 @@ namespace AbhCare.Workflow
     public class NisExeWorkItem : ExeWorkItem
     {
         public NisExeWorkItem(string orgNo, string feeNo, string regNo, string priceCode, string priceName, string startDate, string startTime, 
-            string takeTime, string orderId, int qty, string operation,
+            string takeTime, string orderId, int qty, string operation, string outputFolder,
             string endDate = null, string endTime = null)
         {
             this.OrgNo = orgNo;
@@ -24,6 +24,7 @@ namespace AbhCare.Workflow
             Operation = operation;
             EndDate = endDate ?? string.Empty;
             EndTime = endTime ?? string.Empty;
+            FilePath = outputFolder;
 
             Id = orderId;
             FileName = orderId;

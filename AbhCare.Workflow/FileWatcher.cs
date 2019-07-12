@@ -11,12 +11,15 @@ namespace AbhCare.Workflow
     {
         private readonly string _folder;
         private readonly string _eventName;
+        private readonly string _backupFolder;
+
         public event EventHandler FileDetectHandler;
 
-        public FileWatcher(string folder, string eventName)
+        public FileWatcher(string folder, string eventName, string backupFolder)
         {
             _folder = folder;
             _eventName = eventName;
+            _backupFolder = backupFolder;
         }
 
         public void Start()
@@ -51,6 +54,17 @@ namespace AbhCare.Workflow
                 EventName = _eventName,
                 EventData = "Test Event Data"
             });
+
+            MoveToBackupFolder(e.FullPath);
+        }
+
+        private void MoveToBackupFolder(string fullPath)
+        {
+            var destPath = Path.Combine(_backupFolder, Path.GetFileName(fullPath));
+            if (File.Exists(destPath))
+                File.Delete(destPath);
+
+            File.Move(fullPath, destPath);
         }
     }
 
