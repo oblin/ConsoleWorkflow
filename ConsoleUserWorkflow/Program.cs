@@ -43,14 +43,14 @@ namespace ConsoleUserWorkflow
 
 
             // Use efProvider.GetWorkflowInstances
-            //var efProvider = serviceProvider.GetService<IPersistenceProvider>();
+            var efProvider = serviceProvider.GetService<IPersistenceProvider>();
             //PrintPersistance(efProvider);
             //PrintCompleteWorkflow(efProvider);
 
             // Use UseElasticsearch
-            //var searchProvice = serviceProvider.GetService<ISearchIndex>();
-            //var page = searchProvice.Search("", 0, 10, StatusFilter.Equals(WorkflowStatus.Complete)).Result;
-            //PrintCompleteWorkflow(efProvider, page);
+            var searchprovice = serviceProvider.GetService<ISearchIndex>();
+            var page = searchprovice.Search("", 0, 10, StatusFilter.Equals(WorkflowStatus.Complete)).Result;
+            PrintCompleteWorkflow(efProvider, page);
 
             while (true) { };
         }
@@ -157,12 +157,12 @@ namespace ConsoleUserWorkflow
         {
             //setup dependency injection
             IServiceCollection services = new ServiceCollection();
-            services.AddLogging(log => log.AddDebug());
+            services.AddLogging(log => log.AddConsole());
             var connectionString = @"Server=localhost;Port=5432;Database=workflow;User Id=postgres;Password=490910;";
             services.AddWorkflow(config => {
                 config.
                     UsePostgreSQL(connectionString, true, true);
-                //config.UseElasticsearch(new Nest.ConnectionSettings(new Uri("http://localhost:9200")), "indexname");
+                config.UseElasticsearch(new Nest.ConnectionSettings(new Uri("http://localhost:9200")), "indexname");
             }
             );
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AbhCare.Workflow
@@ -55,16 +56,37 @@ namespace AbhCare.Workflow
                 EventData = "Test Event Data"
             });
 
-            MoveToBackupFolder(e.FullPath);
+            // Move to Parent Event handler for not being access too fast, it whill cuase file lock error
+            //MoveToBackupFolder(e.FullPath);
         }
 
-        private void MoveToBackupFolder(string fullPath)
+        public void MoveToBackupFolder(string fullPath)
         {
+            //while(IsFileLock(fullPath))
+            //{
+            //    Thread.Sleep(1000);
+            //}
+
             var destPath = Path.Combine(_backupFolder, Path.GetFileName(fullPath));
             if (File.Exists(destPath))
                 File.Delete(destPath);
 
             File.Move(fullPath, destPath);
+        }
+
+        private bool IsFileLock(string fullPath)
+        {
+            try
+            {
+                using (Stream stream = new FileStream("MyFilename.txt", FileMode.Open))
+                {
+                }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
     }
 
