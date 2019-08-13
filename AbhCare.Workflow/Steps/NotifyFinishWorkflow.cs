@@ -10,7 +10,7 @@ namespace AbhCare.Workflow
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             Console.WriteLine($"workflow {context.Workflow.Id} had been notified");
-            WorkItem.RaiseFinish("WaitEvent", WorkItem.Id);
+            WorkItem.RaiseFinishEvent("WaitEvent", WorkItem.Id);
             return ExecutionResult.Next();
         }
     }

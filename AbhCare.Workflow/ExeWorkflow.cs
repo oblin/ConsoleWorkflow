@@ -23,7 +23,7 @@ namespace AbhCare.Workflow
                 .Parallel()
                     .Do(then => then.StartWith(context => ExecutionResult.Next())
                         // DetectFileResult 確認執行後，就會觸動 FileCreated Event
-                        .WaitFor("FileCreated", (data, context) => data.Id)
+                        .WaitFor("FileCreated", (data, context) => context.Workflow.Id)
                             .Output(s => s.ForeignKey, step => step.EventData)
                             .Output(s => s.DoneDateTime, _ => DateTime.Now)
                         .Then<NotifyFinishWorkflow>()

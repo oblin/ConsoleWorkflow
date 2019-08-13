@@ -27,13 +27,14 @@ namespace AbhCare.Workflow
             FilePath = outputFolder;
 
             Id = orderId;
-            FileName = orderId;
-
-            Params = ComposeParameters();
         }
 
-        private string[] ComposeParameters()
+        protected override string[] ComposeParameters()
         {
+            if (string.IsNullOrEmpty(WorkflowId)) throw new ArgumentNullException();
+
+            FileName = WorkflowId;
+
             return new string[]
             {
                 ",,01,SUPER01",     // a.	權限：請固定填入→,,01,SUPER01

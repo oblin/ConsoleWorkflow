@@ -18,7 +18,7 @@ namespace AbhCare.Workflow
 
         public string WorkflowId { get; set; }
 
-        public void RaiseError(string step, string message)
+        public void RaiseErrorEvent(string step, string message)
         {
             ErrorHandler?.Invoke(this, new WorkItemEventArgs {
                 Id = Id,
@@ -28,7 +28,7 @@ namespace AbhCare.Workflow
             });
         }
 
-        public void RaiseStart()
+        public void RaiseStartEvent()
         {
             StartHandler?.Invoke(this, new WorkItemEventArgs
             {
@@ -37,7 +37,7 @@ namespace AbhCare.Workflow
             });
         }
 
-        public void RaiseFinish(string step, string message)
+        public void RaiseFinishEvent(string step, string message)
         {
             FinishHandler?.Invoke(this, new WorkItemEventArgs
             {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RabbitLogging;
 using System;
 using System.Diagnostics;
 using WorkflowCore.Interface;
@@ -13,11 +14,13 @@ namespace AbhCare.Workflow
         public WorkItem WorkItem { get; set; }
 
         private readonly IUdWorkflowConfig _fileService;
+        private readonly RLogger _rLogger;
 
-        public InvokeUdExe(IUdWorkflowConfig fileSerivce)
+        public InvokeUdExe(IUdWorkflowConfig fileSerivce, RLogger rLogger)
         {
             _fileService = fileSerivce;
             Console.WriteLine($"ExeWorkflow: {fileSerivce.ExePath}");
+            _rLogger = rLogger;
         }
 
 
@@ -29,17 +32,18 @@ namespace AbhCare.Workflow
             }
             catch (Exception ex)
             {
-                WorkItem.RaiseError("InvokeUdExe", ex.Message);
+                WorkItem.RaiseErrorEvent("InvokeUdExe", ex.Message);
                 throw;
             }
 
-            WorkItem.RaiseStart();
+            WorkItem.RaiseStartEvent();
 
             return ExecutionResult.Next();
         }
 
         private void InvokeExe()
         {
+            _rLogger.WritePerf(new LogEntry { System = "InvokeUdExe.InvokeExe", Layer = WorkItem.Id,  });
             var process = new Process();
             process.StartInfo.FileName = _fileService.ExePath;
             process.StartInfo.Arguments = string.Join(" ", Params);
@@ -48,11 +52,13 @@ namespace AbhCare.Workflow
 
             process.Start();
 
+
             process.WaitForExit();
 
             Console.WriteLine("Exit of wait.");
 
             process.Close();
+            _rLogger.WritePerf(new LogEntry { System = "InvokeUdExe.InvokeExe", Layer = WorkItem.Id, });
 
             // for Event handler with Standard output，但 PB 的程式無法成功
             //process.StartInfo.RedirectStandardOutput = true;
