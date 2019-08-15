@@ -12,6 +12,7 @@ namespace AbhCare.Workflow
         public string OutputFolder { get; set; }
         public string EventName { get; set; }
         public string BackupFolder { get; set; }
+        public string OrderPath { get; set; }
     }
 
     /// <summary>
@@ -32,5 +33,6 @@ namespace AbhCare.Workflow
         /// </summary>
         string EventName { get; set; }
         string BackupFolder { get; set; }
+        string OrderPath { get; set; }
     }
 }

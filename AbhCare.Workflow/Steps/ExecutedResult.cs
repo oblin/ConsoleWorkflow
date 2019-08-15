@@ -11,6 +11,7 @@ namespace AbhCare.Workflow
     public class ExecutedResult : StepBody
     {
         public DateTime? DoneTime { get; set; }
+
         public override ExecutionResult Run(IStepExecutionContext context)
         {
             var timeString = DoneTime == null ? "Not yet" : DoneTime.ToString();

@@ -25,20 +25,20 @@ namespace AbhCare.Workflow
             EndDate = endDate ?? string.Empty;
             EndTime = endTime ?? string.Empty;
             FilePath = outputFolder;
-
+            FileName = orderId;
             Id = orderId;
         }
 
-        protected override string[] ComposeParameters()
+        public override string[] ComposeParameters()
         {
-            if (string.IsNullOrEmpty(WorkflowId)) throw new ArgumentNullException();
+            //if (string.IsNullOrEmpty(WorkflowId)) throw new ArgumentNullException();
 
-            FileName = WorkflowId;
+            //FileName = WorkflowId;
 
             return new string[]
             {
-                ",,01,SUPER01",     // a.	權限：請固定填入→,,01,SUPER01
-                "nis_order",        // b.	作業代碼：此為開立護囑指令的辨識代碼
+                //",,01,SUPER01",     // a.	權限：請固定填入→,,01,SUPER01
+                //"nis_order",        // b.	作業代碼：此為開立護囑指令的辨識代碼
                 GetSeperatedParameters()  //  c.  參數共15個，中間用分號隔開
             };
         }

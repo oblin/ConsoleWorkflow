@@ -6,8 +6,6 @@ namespace AbhCare.Workflow
     {
         public string Path { get; set; }
 
-        public string[] Params => this.ComposeParameters();
-
         public string ForeignKey { get; set; }
 
         public bool HadDone { get; set; }
@@ -16,7 +14,7 @@ namespace AbhCare.Workflow
 
         public string JsonResult { get; set; }
 
-        protected virtual string[] ComposeParameters()
+        public virtual string[] ComposeParameters()
         {
             throw new NotImplementedException();
         }

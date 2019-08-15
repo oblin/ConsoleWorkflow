@@ -5,7 +5,7 @@ namespace AbhCare.Workflow
     public interface IWorkItem
     {
         string Id { get; set; }
-        string WorkflowId { get; set; }
+        string WorkflowId { get; }
     }
 
     public abstract class WorkItem : IWorkItem
@@ -14,9 +14,11 @@ namespace AbhCare.Workflow
         public event EventHandler ErrorHandler;
         public event EventHandler FinishHandler;
 
+        private string _workflowId;
+
         public string Id { get; set; }
 
-        public string WorkflowId { get; set; }
+        public string WorkflowId => _workflowId;
 
         public void RaiseErrorEvent(string step, string message)
         {
@@ -46,6 +48,11 @@ namespace AbhCare.Workflow
                 Step = step,
                 ErrorMessage = message
             });
+        }
+
+        public void SetWorkflowId(string id)
+        {
+            this._workflowId = id;
         }
     }
 

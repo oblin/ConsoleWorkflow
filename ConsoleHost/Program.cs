@@ -1,4 +1,5 @@
 ﻿using AbhCare.Workflow;
+using AbhCare.Workflow.Steps;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace ConsoleHost
             //var item4 = CreateWorkItem4(fileLocation.OutputFolder);
             //hostService.Add(item4.Id, item4.Params);
 
-            for (var i = 0; i < 200; i++)
+            for (var i = 0; i < 2; i++)
             {
                 var item = CreateWorkItem(fileLocation.OutputFolder, Guid.NewGuid().ToString(), i);
                 hostService.Add(item);
@@ -79,8 +80,8 @@ namespace ConsoleHost
                 fre = "TIW";
             }
 
-            return new NisExeWorkItem("ASN", "I1080000055", "00000415",
-                "NEAA", "測試PriceName", "20190705", "0900", fre, id,
+            return new NisExeWorkItem("GHN", "I1070000087", "00000280",
+                "TEST", "測試中文名稱", "20190705", "0900", fre, id,
                 1, "A", output);
         }
 
@@ -137,7 +138,7 @@ namespace ConsoleHost
         {
             var exeParam = workflow.Data as ExeWorkItem;
 
-            Console.WriteLine($"workflow id: {workflow.Id} FAILED! exe params = {exeParam.Id} - {String.Join(',', exeParam.Params)}");
+            Console.WriteLine($"workflow id: {workflow.Id} FAILED! exe params = {exeParam.Id} - {String.Join(',', exeParam.ComposeParameters())}");
             Console.WriteLine($"Step: {step.Name}, reason: {exception.Message}");
         }
 
@@ -147,33 +148,39 @@ namespace ConsoleHost
             //setup dependency injection
             IServiceCollection services = new ServiceCollection();
             services.AddLogging(logger => logger.AddDebug());
-            services.AddWorkflow();
-            //services.AddWorkflow(x => x.UseMongoDB(@"mongodb://localhost:27017", "workflow"));
+
+            var connectionString = @"Server=localhost;Port=5432;Database=workflow;User Id=postgres;Password=490910;";
+
+            services.AddWorkflow(config => config.UsePostgreSQL(connectionString, true, true));
+            //services.AddWorkflow();
+
             services.AddSingleton<ExeWorkflowService>();
 
             var configs = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
-            configs["path"] = @"D:\999\nis_order\nis_order.exe";
+            configs["exepath"] = @"C:\nis_order\nis_order.exe";
+            configs["orderpath"] = @"C:\nis_order\cmd_beg";
             configs["output"] = @"D:\Temp\";
             configs["backup"] = @"D:\999\Backup\";
             configs["event"] = "FileCreated";
 
             // RLogger
-            configs["rlogger:file"] = @"D:\999\workflow.log";
+            configs["rlogger:file"] = @"D:\999\workflow";
             configs["rlogger:debug"] = "true";
             configs["rlogger:system"] = "ConsoleHost";
-
 
             services.AddTransient<IUdWorkflowConfig, UdWorkflowConfig>(_ =>
             {
                 var fileService = new UdWorkflowConfig();
-                fileService.ExePath = configs["path"];
+                fileService.ExePath = configs["exepath"];
+                fileService.OrderPath = configs["orderpath"];
                 fileService.OutputFolder = configs["output"];
                 fileService.BackupFolder = configs["backup"];
                 fileService.EventName = configs["event"];
                 return fileService;
             });
             services.AddTransient<InvokeUdExe>();   // 將 InvokedUdExe 加入才可以進行 DI
+            services.AddTransient<GenDocStep>();
             services.AddTransient<NofifyWorkflowTimeout>();
             services.AddSingleton(RLogger.CreateInstance(configs));
 

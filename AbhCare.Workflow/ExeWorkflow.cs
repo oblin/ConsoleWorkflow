@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AbhCare.Workflow.Steps;
+using Microsoft.Extensions.Configuration;
 using System;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
@@ -17,13 +18,13 @@ namespace AbhCare.Workflow
         {
             builder
                 // 啟動執行 (Path) 加上參數 (Params)
-                .StartWith<InvokeUdExe>()
-                    .Input(s => s.Params, d => d.Params)
+                .StartWith<GenDocStep>()
+                    .Input(s => s.Params, d => d.ComposeParameters())
                     .Input(s => s.WorkItem, d => d)
                 .Parallel()
                     .Do(then => then.StartWith(context => ExecutionResult.Next())
                         // DetectFileResult 確認執行後，就會觸動 FileCreated Event
-                        .WaitFor("FileCreated", (data, context) => context.Workflow.Id)
+                        .WaitFor("FileCreated", (data, context) => data.Id)
                             .Output(s => s.ForeignKey, step => step.EventData)
                             .Output(s => s.DoneDateTime, _ => DateTime.Now)
                         .Then<NotifyFinishWorkflow>()

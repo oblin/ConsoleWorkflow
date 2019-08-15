@@ -2,6 +2,7 @@
 using RabbitLogging;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -19,7 +20,6 @@ namespace AbhCare.Workflow
         public InvokeUdExe(IUdWorkflowConfig fileSerivce, RLogger rLogger)
         {
             _fileService = fileSerivce;
-            Console.WriteLine($"ExeWorkflow: {fileSerivce.ExePath}");
             _rLogger = rLogger;
         }
 
@@ -29,9 +29,11 @@ namespace AbhCare.Workflow
             try
             {
                 InvokeExe();
+                Console.WriteLine($"Workflow: {WorkItem.Id} had started exe");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Workflow: {WorkItem.Id} start Error");
                 WorkItem.RaiseErrorEvent("InvokeUdExe", ex.Message);
                 throw;
             }
@@ -50,14 +52,25 @@ namespace AbhCare.Workflow
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
 
-            process.Start();
+            try
+            {
+                var isStarted = process.Start();
+                process.Exited += Process_Exited;
+                var processRunningMessage = $"process {process.SessionId}, session: {process.SessionId} is started: {isStarted}";
+                Console.WriteLine(processRunningMessage);
+                _rLogger.WriteDebug(processRunningMessage);
+
+            } catch (Exception ex)
+            {
+                Console.WriteLine("process start failed: " + ex.Message);
+            }
 
 
-            process.WaitForExit();
+            //process.WaitForExit();
 
-            Console.WriteLine("Exit of wait.");
+            //Console.WriteLine("Exit of wait.");
 
-            process.Close();
+            //process.Close();
             _rLogger.WritePerf(new LogEntry { System = "InvokeUdExe.InvokeExe", Layer = WorkItem.Id, });
 
             // for Event handler with Standard output，但 PB 的程式無法成功
@@ -78,6 +91,11 @@ namespace AbhCare.Workflow
 
             //process.BeginOutputReadLine();  // Read each line
             //process.BeginErrorReadLine();   // Read each line
+        }
+
+        private void Process_Exited(object sender, EventArgs e)
+        {
+            Console.WriteLine("Process had Exited");
         }
     }
 }

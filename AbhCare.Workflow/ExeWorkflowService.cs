@@ -56,12 +56,15 @@ namespace AbhCare.Workflow
         /// <returns></returns>
         public ExeWorkItem Add(ExeWorkItem item)
         {
-            while(_workflowDataMappings.Count > 7)
+            while(_workflowDataMappings.Count > 4)
             {
                 // 一次超過七個 process （可能跟 CPU thread 有關） 會造成無法觸發 Event 的問題
                 Thread.Sleep(5000);
             }
-            item.WorkflowId = _host.StartWorkflow("ExeWorkflow", item).Result;
+            var workflowId = _host.StartWorkflow("ExeWorkflow", item).Result;
+
+            item.SetWorkflowId(workflowId);
+
             _workflowDataMappings.TryAdd(item.WorkflowId, item.Id);
 
             _rLogger.WriteDebug($"執行開始 {item.Id} 頻率： {((NisExeWorkItem)item).TakeTime}");
@@ -75,7 +78,7 @@ namespace AbhCare.Workflow
             _host.PublishEvent(fileEvent.EventName, fileEvent.WorkflowId, fileEvent.EventData);
         }
 
-        private void Host_OnLifeCycleEvent(WorkflowCore.Models.LifeCycleEvents.LifeCycleEvent evt)
+        private void Host_OnLifeCycleEvent(LifeCycleEvent evt)
         {
             if (evt is WorkflowCompleted)
             {
@@ -100,6 +103,35 @@ namespace AbhCare.Workflow
                 _workflowDataMappings.TryRemove(type.WorkflowInstanceId, out string id);
                 Console.WriteLine($"Life cycle type: {nameof(WorkflowError)}, workflow id {type.WorkflowInstanceId}, message: {type.Message}, step: {type.StepId}, ExecutionPointerId: {type.ExecutionPointerId}");
             }
+            //else if (evt is WorkflowSuspended)
+            //{
+            //    var type = evt as WorkflowSuspended;
+            //    Console.WriteLine($"Life cycle type: {nameof(WorkflowSuspended)}, workflow id {type.WorkflowInstanceId}");
+            //} else if (evt is WorkflowStarted)
+            //{
+            //    var type = evt as WorkflowStarted;
+            //    Console.WriteLine($"Life cycle type: {nameof(WorkflowStarted)}, workflow id {type.WorkflowInstanceId}");
+            //}
+            //else if (evt is WorkflowResumed)
+            //{
+            //    var type = evt as WorkflowResumed;
+            //    Console.WriteLine($"Life cycle type: {nameof(WorkflowResumed)}, workflow id {type.WorkflowInstanceId}");
+            //}
+            //else if (evt is WorkflowTerminated)
+            //{
+            //    var type = evt as WorkflowTerminated;
+            //    Console.WriteLine($"Life cycle type: {nameof(WorkflowTerminated)}, workflow id {type.WorkflowInstanceId}");
+            //}
+            //else if (evt is StepCompleted)
+            //{
+            //    var type = evt as StepCompleted;
+            //    Console.WriteLine($"Life cycle type: {nameof(StepCompleted)}, workflow id {type.WorkflowInstanceId}, step: {type.StepId}, ExecutionPointerId: {type.ExecutionPointerId}");
+            //}
+            //else if (evt is StepStarted)
+            //{
+            //    var type = evt as StepStarted;
+            //    Console.WriteLine($"Life cycle type: {nameof(StepStarted)}, workflow id {type.WorkflowInstanceId}, step: {type.StepId}, ExecutionPointerId: {type.ExecutionPointerId}");
+            //}
         }
     }
 }
