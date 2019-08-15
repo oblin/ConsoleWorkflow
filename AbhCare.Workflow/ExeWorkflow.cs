@@ -40,7 +40,7 @@ namespace AbhCare.Workflow
                             .Output(d => d.IsDone, _ => true)
                     )
                 .Join()
-                    // 一旦失敗就不再執行
+                    // 一旦結束： IsDone = true 就不再執行
                     .CancelCondition(d => d.IsDone, true)
                 // 任何步驟失敗就結束此流程（處理機制放在 Workflow_OnStepError）
                 .OnError(WorkflowErrorHandling.Terminate)
